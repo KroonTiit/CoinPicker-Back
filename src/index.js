@@ -6,14 +6,10 @@ var request = require('request');
 var cors = require('cors');
 const cache = require('./cache.js');
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT;
 const apiUrl = "http://api.coinlayer.com/api/";
 const target = "EUR";
 
-app.listen(
-    PORT,
-    () => console.log('server running on http://localhost:'+PORT)
-);
 
 app.use(
     cors({
@@ -34,9 +30,18 @@ app.get('/getCoin', cache(3600000), (req,res) => {
             console.log('Error:', err);
         } else if (responce.statusCode !== 200) {
             console.log('Status:', responce.statusCode);
+            return res.status(500).send({ error: 'API error' }); 
         } else {
             console.log(responce);
             res.status(200).send(responce);
         }
     });
 });
+
+if (require.main === module) {
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+}
+module.exports = app;
+
